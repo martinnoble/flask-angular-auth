@@ -14,12 +14,14 @@ angular.module('myApp').controller('loginController',
         // handle success
         .then(function () {
           $location.path('/');
+          $scope.username = AuthService.getUserName();
           $scope.disabled = false;
           $scope.loginForm = {};
         })
         // handle error
         .catch(function () {
           $scope.error = true;
+          $scope.username = "";
           $scope.errorMessage = "Invalid username and/or password";
           $scope.disabled = false;
           $scope.loginForm = {};
@@ -56,7 +58,8 @@ angular.module('myApp').controller('registerController',
       $scope.disabled = true;
 
       // call register from service
-      AuthService.register($scope.registerForm.email,
+      AuthService.register($scope.registerForm.name, 
+			   $scope.registerForm.email,
                            $scope.registerForm.password)
         // handle success
         .then(function () {

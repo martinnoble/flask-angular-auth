@@ -38,7 +38,13 @@ myApp.run(function ($rootScope, $location, $route, AuthService) {
     function (event, next, current) {
       AuthService.getUserStatus()
       .then(function(){
-        if (next.access.restricted && !AuthService.isLoggedIn()){
+        $rootScope.username = AuthService.getUserName();
+        if (AuthService.isLoggedIn() && next.controller && next.controller == 'loginController')
+        {
+            $location.path('/');
+            $route.reload();
+        }
+        else if (next.access.restricted && !AuthService.isLoggedIn()){
           $location.path('/login');
           $route.reload();
         }

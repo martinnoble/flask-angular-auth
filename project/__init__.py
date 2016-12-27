@@ -2,8 +2,8 @@
 
 
 from flask import Flask, request, jsonify, session
-from flask.ext.bcrypt import Bcrypt
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_sqlalchemy import SQLAlchemy
 from project.config import BaseConfig
 
 
@@ -29,6 +29,7 @@ def index():
 def register():
     json_data = request.json
     user = User(
+        name=json_data['name'],
         email=json_data['email'],
         password=json_data['password']
     )
@@ -49,7 +50,10 @@ def login():
     if user and bcrypt.check_password_hash(
             user.password, json_data['password']):
         session['logged_in'] = True
+        session['name'] = user.name
+        session['user_type'] = user.user_type
         status = True
+    	return jsonify({'result': status, 'name': user.name})
     else:
         status = False
     return jsonify({'result': status})
@@ -58,13 +62,14 @@ def login():
 @app.route('/api/logout')
 def logout():
     session.pop('logged_in', None)
+    session.pop('name', None)
+    session.pop('user_type', None)
     return jsonify({'result': 'success'})
 
 
 @app.route('/api/status')
 def status():
     if session.get('logged_in'):
-        if session['logged_in']:
-            return jsonify({'status': True})
+       return jsonify({'logged_in': session['logged_in'], 'name': session['name']})
     else:
-        return jsonify({'status': False})
+        return jsonify({'logged_in': False})
